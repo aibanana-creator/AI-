@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PROJECT BUILDER｜第3解析ラボ 自作AI構築ドック</title>
+    <!-- Google Fonts (明朝体) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+    :root{
+      --bg:#030406;
+      --panel:#0a0d14;
+      --panel2:#111622;
+      --line:rgba(255,255,255,0.08);
+      --text:#e0e6ed;
+      --muted:#8896a6;
+      --accent:#7ebaf5;
+      --accent2:#b3e5a3;
+      --danger:#f58a8a;
+      --gold:#e6c883;
+    }
+    *{box-sizing:border-box}
+    
+    body{
+      margin:0;
+      background: #020305;
+      color:var(--text);
+      font-family: 'Noto Serif JP', "Hiragino Mincho ProN", "Yu Mincho", "MS PMincho", serif;
+      line-height:1.8;
+      font-weight: 300; /* エレガントな細字 */
+    }
+    a{color:inherit}
+    button, input, textarea, select { font-family: inherit; }
+    
+    /* スマホ画角用のコンテナ */
+    .app-container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 0% 0%, rgba(126, 186, 245, 0.05), transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(179, 229, 163, 0.03), transparent 40%);
+      min-height: 100vh;
+      position: relative;
+      box-shadow: 0 0 50px rgba(0,0,0,0.9);
+      overflow-x: hidden;
+    }
+
+    /* 画面遷移アニメーション */
+    .screen { display: none; animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .screen.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); filter: blur(4px); }
+      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+
+    /* === SCREEN 1 === */
+    .image-select-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+      margin-top: 16px;
+    }
+    .image-card {
+      background: var(--panel);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      position: relative;
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .image-card:active { transform: scale(0.97); }
+    .image-card img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.3s;
+    }
+    .image-card:hover img { opacity: 0.9; }
+    
+    .tap-instruction {
+      text-align: center;
+      padding: 16px;
+      font-size: 13px;
+      color: #fff;
+      background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+      letter-spacing: 0.15em;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      backdrop-filter: blur(2px);
+    }
+    .tap-instruction svg { vertical-align: middle; margin-right: 8px; margin-bottom: 2px; opacity: 0.8; }
+
+    /* === SCREEN 3 === */
+    #result-card {
+      background: linear-gradient(145deg, #0d121c, #05070a);
+      border: 1px solid rgba(126, 186, 245, 0.3);
+      padding: 40px 24px;
+      border-radius: 2px; /* 証明書らしいシャープな角 */
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
+      position: relative;
+      margin-bottom: 30px;
+    }
+    #result-card::after {
+      content: ""; position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
+      border: 1px solid rgba(255,255,255,0.03); pointer-events: none;
+    }
+    #result-card::before {
+      content: "CERTIFIED"; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) rotate(-10deg); font-size: 60px;
+      font-family: sans-serif; font-weight: 900; color: rgba(255,255,255,0.02);
+      pointer-events: none; white-space: nowrap; letter-spacing: 0.1em;
+    }
+    
+    .result-header { text-align: center; margin-bottom: 32px; border-bottom: 1px solid var(--line); padding-bottom: 24px; position: relative; z-index: 2; }
+    .result-header h2 { color: var(--accent); margin: 0 0 12px; font-size: 18px; letter-spacing: 0.2em; font-weight: 400; text-transform: uppercase; }
+    .result-header p { color: var(--muted); margin: 0; font-size: 11px; letter-spacing: 0.1em; }
+    
+    .result-body { display: grid; grid-template-columns: 1fr; gap: 20px; position: relative; z-index: 2; }
+    .result-item { padding: 0 12px; border-left: 1px solid var(--accent); }
+    .result-item .label { font-size: 10px; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.15em; font-family: sans-serif; text-transform: uppercase; }
+    .result-item .value { font-size: 15px; color: #fff; font-weight: 500; letter-spacing: 0.05em; }
+    
+    /* Buttons */
+    .save-btn, .cta {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 18px 20px;
+      width: 100%;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(255,255,255,0.1);
+      display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+    .save-btn:active, .cta:active { transform: translateY(2px); box-shadow: 0 5px 10px rgba(255,255,255,0.05); }
+    .cta:disabled { opacity: 0.2; cursor: not-allowed; }
+    
+    .text-center { text-align: center; margin-top: 24px; }
+
+    /* Basic UI */
+    .topline{ border-bottom:1px solid var(--line); background:rgba(3,4,6,.8); position:sticky; top:0; z-index:50; backdrop-filter:blur(12px); }
+    .statusbar{ padding:12px 20px; display:flex; justify-content: space-between; font-size:10px; letter-spacing:.1em; color:var(--muted); font-family: sans-serif; }
+    .statusbar b{color:var(--accent); font-weight:400}
+    
+    .wrap{ padding:24px 20px 50px; }
+    
+    .hero{ padding:20px 0; text-align: center; }
+    .eyebrow{font-size:10px; color:var(--accent); letter-spacing:.25em; font-weight:400; font-family: sans-serif; margin-bottom: 12px; display: block;}
+    h1{margin:0 0 16px; font-size:26px; line-height:1.3; font-weight: 300; letter-spacing: 0.1em;}
+    .sub{color:var(--muted); margin:0; font-size: 12px; line-height: 1.8;}
+    
+    .devmsg{ margin-top:32px; border-left:1px solid var(--accent); background: linear-gradient(90deg, rgba(126, 186, 245, 0.05), transparent); padding:16px 20px; color:var(--muted); font-size: 12px; text-align: left; }
+    .devmsg strong{color:var(--accent); font-weight: 400; display: block; margin-bottom: 6px; font-size: 11px; letter-spacing: 0.1em;}
+    
+    .grid{ display:flex; flex-direction: column; gap:0; margin-top:10px; }
+    
+    .section{padding:40px 0; scroll-margin-top: 60px;}
+    .section + .section{border-top:1px solid var(--line)}
+    
+    .stephead{ display:flex; flex-direction: column; align-items:center; margin-bottom:24px; text-align: center;}
+    .stepno{ font-family: sans-serif; color:var(--muted); font-weight:400; font-size:10px; letter-spacing:.2em; margin-bottom: 8px;}
+    .stephead h2{margin:0; font-size:20px; font-weight: 400; letter-spacing: 0.1em;}
+    
+    .tier{ margin:32px 0 20px; display:flex; align-items:center; gap:16px; color:#fff; font-weight:700; font-size: 16px; letter-spacing: 0.1em; }
+    .tier::before, .tier::after { content: ""; flex: 1; height: 1px; background: rgba(126, 186, 245, 0.3); }
+    .badge{ font-family: sans-serif; font-size:11px; font-weight: 700; padding:4px 8px; border:1px solid var(--accent); border-radius: 3px; color: var(--accent); letter-spacing: 0.05em; background: rgba(126, 186, 245, 0.05); }
+    .badge.rank{color:var(--gold); border-color:rgba(230,200,131,.5); background: rgba(230,200,131, 0.05);}
+    .badge.secret{color:#ff9cce; border-color:rgba(255,156,206,.5); background: rgba(255,156,206, 0.05);}
+    
+    .options{display:grid; gap:12px}
+    label.option{ display:grid; grid-template-columns:20px minmax(0,1fr) auto; gap:12px; align-items:center; border:1px solid var(--line); background:var(--panel); padding:16px; cursor:pointer; transition:all .3s ease; border-radius: 4px; }
+    label.option:has(input:checked){ border-color:var(--accent); background:rgba(126,186,245,.03); }
+    input[type="radio"],input[type="checkbox"]{accent-color:var(--accent); transform:scale(1); opacity: 0.5; transition: 0.2s;}
+    label.option:has(input:checked) input { opacity: 1; }
+    
+    /* 背景画像付きオプション（キャラクター共通） */
+    label.option.char-bg {
+      background-image: linear-gradient(rgba(10, 13, 20, 0.5), rgba(10, 13, 20, 0.85)), var(--bg-url);
+      background-size: cover;
+      background-position: var(--bg-pos, center 15%);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    label.option.char-bg:has(input:checked) {
+      background-image: linear-gradient(rgba(126, 186, 245, 0.4), rgba(10, 13, 20, 0.8)), var(--bg-url);
+      background-position: var(--bg-pos, center 15%);
+      background-size: cover;
+      border-color: var(--accent);
+      box-shadow: 0 0 25px rgba(126, 186, 245, 0.6), inset 0 0 15px rgba(126, 186, 245, 0.4);
+    }
+    label.option.char-bg .opt-title { text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
+    label.option.char-bg .opt-sub { text-shadow: 0 1px 3px rgba(0,0,0,0.9); font-weight: 400; color: rgba(255,255,255,0.9);}
+    
+    .opt-title{font-weight:400; font-size: 15px; letter-spacing: 0.05em; color: #fff;}
+    .opt-sub{display:block; color:var(--muted); font-size:11px; margin-top:4px; letter-spacing: 0.05em;}
+    .price{font-family: sans-serif; font-weight:400; color:var(--muted); font-size:12px; letter-spacing: 0.05em;}
+    .price.plus{color:var(--gold)}
+    
+    .mini-grid{display:grid; grid-template-columns:1fr; gap:12px}
+    
+    .summary{padding:40px 0 0; border-top: 1px solid var(--line); margin-top: 20px;}
+    .summary h3{margin:0 0 24px; font-size:18px; text-align: center; font-weight: 400; letter-spacing: 0.1em;}
+    
+    .specs{margin:0 0 24px;}
+    .specrow{ display:grid; grid-template-columns:120px 1fr; gap:16px; padding:12px 0; border-bottom:1px solid var(--line); font-size:12px; align-items: center;}
+    .specrow .k{color:var(--muted); font-family: sans-serif; font-size: 10px; letter-spacing: 0.15em;}
+    .specrow .v{font-weight:400; text-align:right; color: #fff; letter-spacing: 0.05em;}
+    
+    .totalbox{ padding:24px; margin:24px 0; border:1px solid var(--line); background:var(--panel); border-radius: 4px; text-align: center;}
+    .total-label{color:var(--muted); font-size:10px; font-family: sans-serif; letter-spacing: 0.15em; margin-bottom: 8px;}
+    .total{ font-family: sans-serif; font-size:32px; font-weight:300; letter-spacing:.05em; color: #fff; }
+    .tax{font-size:10px; color:var(--muted); margin-top: 4px;}
+    
+    .checkarea{display:flex; flex-direction: column; gap:16px; margin:32px 0; scroll-margin-top: 80px;}
+    .checkline{display:flex; gap:12px; align-items:flex-start; font-size:11px; color:var(--muted); letter-spacing: 0.05em; line-height: 1.6;}
+    .checkline input {margin-top: 4px;}
+    
+    .note{font-size:10px; color:var(--muted); margin-top:16px; text-align: center; line-height: 1.6;}
+    
+    .footer{ padding:40px 20px; color:rgba(255,255,255,0.2); font-size:9px; text-align: center; font-family: sans-serif; letter-spacing: 0.2em; border-top: 1px solid var(--line); margin-top: 40px;}
+    .locked{ padding:16px; border:1px solid rgba(255,255,255,0.05); color:var(--muted); margin-top:24px; font-size:11px; border-radius: 4px; text-align: center; letter-spacing: 0.05em;}
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="topline">
+        <div class="statusbar">
+            <span>STATUS: <strong>ONLINE</strong></span>
+            <span>CORE: <strong>ACTIVE</strong></span>
+            <span>LAB: <strong>SECTION-03</strong></span>
+        </div>
+    </div>
+
+    <div class="wrap">
+
+        <!-- ==================== SCREEN 1: IMAGE SELECTION ==================== -->
+        <div id="screen-1" class="screen active">
+
+            
+            <div class="image-select-grid">
+                
+                <div class="image-card" onclick="selectTheme('選択画像')">
+                    <img src="./画像/TAP前.png" alt="Tap Image">
+                    <div class="tap-instruction">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 12h-7a4.5 4.5 0 0 0-4.5 4.5v.5"></path><path d="M12 15l-3 3 3 3"></path><path d="M22 6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6z"></path></svg>
+                        この画像をTAPしてください
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+
+
+        <!-- ==================== SCREEN 2: CONFIGURATION FORM ==================== -->
+        <div id="screen-2" class="screen">
+            <section class="hero-images" style="display: flex; flex-direction: column; margin-bottom: 20px; margin-left: -20px; margin-right: -20px;">
+                <!-- 画像フォルダ1 (TOKYO CENTRAL / PROJECT BUILDER / 第3解析ラボ...) -->
+                <img src="./画像/１.png" alt="PROJECT BUILDER" style="width: 100%; height: auto; display: block;">
+
+                <!-- 画像フォルダ2 (AI開発部門・田中 敬一郎 / 直感でパーツを選んで...) -->
+                <img src="./画像/２.png" alt="メッセージ画像" style="width: 100%; height: auto; display: block;">
+            </section>
+
+            <div class="grid">
+                <main class="card">
+                    <!-- STEP 01 -->
+                    <section class="section">
+                        <div class="stephead">
+                            <div class="stepno">STEP 01</div>
+                            <div>
+                                <h2>ベースAIモデル</h2>
+                            </div>
+                        </div>
+
+                        <div class="tier"><span>通常AIモデル</span><span class="badge">BASIC</span></div>
+                        <div class="options">
+                            <label class="option char-bg" style="--bg-url: url('./画像/アテナ.png');"><input type="radio" name="base" value="ATHENA — アテナ" data-price="0"><span><span class="opt-title">ATHENA — アテナ</span><span class="opt-sub">直近偏差×相関補正モデル</span></span><span class="price">＋0円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/コロンブス.png');"><input type="radio" name="base" value="COLUMBUS — コロンブス" data-price="0"><span><span class="opt-title">COLUMBUS — コロンブス</span><span class="opt-sub">未踏領域スキャン</span></span><span class="price">＋0円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/リョウマ.png');"><input type="radio" name="base" value="RYOMA — リョウマ" data-price="0"><span><span class="opt-title">RYOMA — リョウマ</span><span class="opt-sub">風向き察知×先回り設計</span></span><span class="price">＋0円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/トランプ.png');"><input type="radio" name="base" value="TRUMP — トランプ" data-price="0"><span><span class="opt-title">TRUMP — トランプ</span><span class="opt-sub">強気交渉モデル</span></span><span class="price">＋0円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/ガリレオ.png');"><input type="radio" name="base" value="GALILEO — ガリレオ" data-price="0"><span><span class="opt-title">GALILEO — ガリレオ</span><span class="opt-sub">法則抽出リサーチモデル</span></span><span class="price">＋0円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/ダヴィンチ.png');"><input type="radio" name="base" value="da Vinci — ダ・ヴィンチ" data-price="0"><span><span class="opt-title">da Vinci — ダ・ヴィンチ</span><span class="opt-sub">構造最適化クリエイティブ</span></span><span class="price">＋0円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/エジソン.png');"><input type="radio" name="base" value="EDISON — エジソン" data-price="0"><span><span class="opt-title">EDISON — エジソン</span><span class="opt-sub">データ蓄積アップデート</span></span><span class="price">＋0円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/ノストラダムス.png');"><input type="radio" name="base" value="NOSTRADAMUS — ノストラダムス" data-price="0"><span><span class="opt-title">NOSTRADAMUS — ノストラダムス</span><span class="opt-sub">予言解析モデル</span></span><span class="price">＋0円</span></label>
+                        </div>
+
+                        <div class="tier"><span>2025年実績ランカーAI</span><span class="badge rank">RANKER</span></div>
+                        <div class="options">
+                            <label class="option char-bg" style="--bg-url: url('./画像/ショウヘイ.png');"><input type="radio" name="base" value="SHOHEI — ショウヘイ" data-price="3500"><span><span class="opt-title">SHOHEI — ショウヘイ</span><span class="opt-sub">【当せん率1位】二刀流解析</span></span><span class="price plus">＋3,500円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/ヒミコ.png');"><input type="radio" name="base" value="HIMIKO — ヒミコ" data-price="3000"><span><span class="opt-title">HIMIKO — ヒミコ</span><span class="opt-sub">【当せん率2位】神託予知</span></span><span class="price plus">＋3,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/ノブナガ.png');"><input type="radio" name="base" value="NOBUNAGA — ノブナガ" data-price="2500"><span><span class="opt-title">NOBUNAGA — ノブナガ</span><span class="opt-sub">【ミニロト2位】一点突破</span></span><span class="price plus">＋2,500円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/イエヤス.png');"><input type="radio" name="base" value="IEYASU — イエヤス" data-price="2000"><span><span class="opt-title">IEYASU — イエヤス</span><span class="opt-sub">【総合4位】長期布陣</span></span><span class="price plus">＋2,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/ベンケイ.png');"><input type="radio" name="base" value="BENKEI — ベンケイ" data-price="2500"><span><span class="opt-title">BENKEI — ベンケイ</span><span class="opt-sub">【獲得金3位】鉄壁守護</span></span><span class="price plus">＋2,500円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/ホームズ.png');"><input type="radio" name="base" value="HOLMES — ホームズ" data-price="2500"><span><span class="opt-title">HOLMES — ホームズ</span><span class="opt-sub">【ナンバーズ3位】痕跡抽出</span></span><span class="price plus">＋2,500円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/モモタロウ.png');"><input type="radio" name="base" value="MOMOTARO — モモタロウ" data-price="2000"><span><span class="opt-title">MOMOTARO — モモタロウ</span><span class="opt-sub">【週間3位】オニ討伐</span></span><span class="price plus">＋2,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/マイケル.png');"><input type="radio" name="base" value="MICHAEL — マイケル" data-price="2500"><span><span class="opt-title">MICHAEL — マイケル</span><span class="opt-sub">【N4獲得金2位】ヒットメイカー</span></span><span class="price plus">＋2,500円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/シンゲン.png');"><input type="radio" name="base" value="SHINGEN — シンゲン" data-price="2500"><span><span class="opt-title">SHINGEN — シンゲン</span><span class="opt-sub">【ロト6回収率3位】風林火山</span></span><span class="price plus">＋2,500円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./画像/ケンシン.png');"><input type="radio" name="base" value="KENSHIN — ケンシン" data-price="2500"><span><span class="opt-title">KENSHIN — ケンシン</span><span class="opt-sub">【N3獲得金2位】軍神直感</span></span><span class="price plus">＋2,500円</span></label>
+                        </div>
+
+                        <div class="tier"><span>最高機密モンスターAI</span><span class="badge secret">SECRET</span></div>
+                        <div class="options">
+                            <label class="option char-bg" style="--bg-url: url('./画像/アシュラ.png'); --bg-pos: center 45%;"><input type="radio" name="base" value="ASURA — アシュラ" data-price="7500"><span><span class="opt-title">ASURA — アシュラ</span><span class="opt-sub">多面演算モンスターモデル</span></span><span class="price plus">＋7,500円</span></label>
+                        </div>
+                    </section>
+
+                    <!-- STEP 02 -->
+                    <section class="section">
+                        <div class="stephead">
+                            <div class="stepno">STEP 02</div>
+                            <div>
+                                <h2>ターゲットくじ種</h2>
+                            </div>
+                        </div>
+                        <div class="mini-grid">
+                            <label class="option"><input type="radio" name="target" value="ロト7 特化型" data-price="0"><span><span class="opt-title">ロト7 特化型</span></span><span class="price">＋0円</span></label>
+                            <label class="option"><input type="radio" name="target" value="ロト6 特化型" data-price="0"><span><span class="opt-title">ロト6 特化型</span></span><span class="price">＋0円</span></label>
+                            <label class="option"><input type="radio" name="target" value="ミニロト 特化型" data-price="0"><span><span class="opt-title">ミニロト 特化型</span></span><span class="price">＋0円</span></label>
+                            <label class="option"><input type="radio" name="target" value="ナンバーズ3・4 特化型" data-price="0"><span><span class="opt-title">ナンバーズ 特化</span></span><span class="price">＋0円</span></label>
+                        </div>
+                    </section>
+
+                    <!-- STEP 03 -->
+                    <section class="section">
+                        <div class="stephead">
+                            <div class="stepno">STEP 03</div>
+                            <div>
+                                <h2>稼働エネルギー</h2>
+                            </div>
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="runs" value="1回限定" data-price="0"><span><span class="opt-title">1回限定</span><span class="opt-sub">ピンポイント勝負</span></span><span class="price">＋0円</span></label>
+                            <label class="option"><input type="radio" name="runs" value="3回稼働" data-price="2500"><span><span class="opt-title">3回稼働</span><span class="opt-sub">標準実戦</span></span><span class="price plus">＋2,500円</span></label>
+                            <label class="option"><input type="radio" name="runs" value="5回稼働" data-price="5000"><span><span class="opt-title">5回稼働</span><span class="opt-sub">最大寿命</span></span><span class="price plus">＋5,000円</span></label>
+                        </div>
+                    </section>
+
+                    <!-- STEP 04 -->
+                    <section class="section">
+                        <div class="stephead">
+                            <div class="stepno">STEP 04</div>
+                            <div>
+                                <h2>提供口数</h2>
+                            </div>
+                        </div>
+                        <div class="mini-grid">
+                            <label class="option"><input type="radio" name="lines" value="5口仕様" data-price="0"><span><span class="opt-title">5口仕様</span></span><span class="price">＋0円</span></label>
+                            <label class="option"><input type="radio" name="lines" value="6口仕様" data-price="1000"><span><span class="opt-title">6口仕様</span></span><span class="price plus">＋1,000円</span></label>
+                            <label class="option"><input type="radio" name="lines" value="7口仕様" data-price="2000"><span><span class="opt-title">7口仕様</span></span><span class="price plus">＋2,000円</span></label>
+                            <label class="option"><input type="radio" name="lines" value="8口仕様" data-price="3000"><span><span class="opt-title">8口仕様</span></span><span class="price plus">＋3,000円</span></label>
+                            <label class="option"><input type="radio" name="lines" value="9口仕様" data-price="4000"><span><span class="opt-title">9口仕様</span></span><span class="price plus">＋4,000円</span></label>
+                            <label class="option"><input type="radio" name="lines" value="10口仕様" data-price="5000"><span><span class="opt-title">10口仕様</span></span><span class="price plus">＋5,000円</span></label>
+                        </div>
+                    </section>
+
+                    <!-- STEP 05 -->
+                    <section class="section">
+                        <div class="stephead">
+                            <div class="stepno">STEP 05</div>
+                            <div>
+                                <h2>オプション</h2>
+                            </div>
+                        </div>
+                        <div class="options">
+                            <label class="option"><input type="checkbox" name="opt" value="手動チューニング" data-price="3500"><span><span class="opt-title">田中敬一郎 手動チューニング</span></span><span class="price plus">＋3,500円</span></label>
+                            <label class="option"><input type="checkbox" name="opt" value="HOT偏重" data-price="1000"><span><span class="opt-title">HOT偏重・トレンド追従</span></span><span class="price plus">＋1,000円</span></label>
+                            <label class="option"><input type="checkbox" name="opt" value="COLD逆張り" data-price="1500"><span><span class="opt-title">COLD逆張り・ジャックポット</span></span><span class="price plus">＋1,500円</span></label>
+                            <label class="option"><input type="checkbox" name="opt" value="ノイズカット" data-price="2000"><span><span class="opt-title">末尾相関・連番ノイズカット</span></span><span class="price plus">＋2,000円</span></label>
+                            <label class="option"><input type="checkbox" name="opt" value="アンチ・クラウディング" data-price="3000"><span><span class="opt-title">アンチ・クラウディング</span></span><span class="price plus">＋3,000円</span></label>
+                        </div>
+
+                        <div class="locked">
+                            <strong>AI命名プロトコル：LOCKED</strong><br>
+                            決済完了後、最終工程として専属AIのコードネーム入力画面が解放されます。
+                        </div>
+                    </section>
+                </main>
+
+                <!-- ASIDE -->
+                <aside class="side">
+                    <div class="card summary">
+                        <div class="kicker">LIVE ESTIMATE</div>
+                        <h3>リアルタイムスペック</h3>
+
+                        <div class="access">
+                            ACCESS KEY：<strong>認証済み</strong>
+                            <div class="meter"><br></div>
+                        </div>
+
+                        <div class="specs">
+                            <div class="specrow">
+                                <div class="k">ベースAI</div>
+                                <div class="v" id="s-base">未選択</div>
+                            </div>
+                            <div class="specrow">
+                                <div class="k">ターゲット</div>
+                                <div class="v" id="s-target">未選択</div>
+                            </div>
+                            <div class="specrow">
+                                <div class="k">稼働エネルギー</div>
+                                <div class="v" id="s-runs">未選択</div>
+                            </div>
+                            <div class="specrow">
+                                <div class="k">提供口数</div>
+                                <div class="v" id="s-lines">未選択</div>
+                            </div>
+                            <div class="specrow">
+                                <div class="k">オプション</div>
+                                <div class="v" id="s-opt">なし</div>
+                            </div>
+                        </div>
+
+                        <div class="totalbox">
+                            <div class="total-label">合計コスト</div>
+                            <div class="total" id="total">￥0</div>
+                            <div class="tax">税込</div>
+                        </div>
+
+                        <div class="checkarea">
+                            <label class="checkline"><input id="c1" type="checkbox"> <span>予想受取は提供前日15時まで</span></label>
+                            <label class="checkline"><input id="c2" type="checkbox"> <span>完了後の自動停止に同意する</span></label>
+                            <label class="checkline"><input id="c3" type="checkbox"> <span>この仕様でAI構築を申請する</span></label>
+                        </div>
+
+                        <!-- Change this button to go to screen 3 -->
+                        <button class="cta" id="btn-confirm" disabled onclick="goToResult()">このスペックで確定する</button>
+                        <div class="note">
+                            ※確定後、証明書画像を発行できます。<br>
+                            ※予想は将来の当せんを保証するものではありません。
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+
+        <!-- ==================== SCREEN 3: RESULT AND SAVE IMAGE ==================== -->
+        <div id="screen-3" class="screen">
+            <div id="result-card">
+                <div class="result-header">
+                    <h2>CERTIFICATE</h2>
+                    <p>自作AI構築 最終確定スペック</p>
+                </div>
+                <div class="result-body">
+                    <div class="result-item">
+                        <div class="label">BASE AI CORE</div>
+                        <div class="value" id="r-base">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">TARGET AREA</div>
+                        <div class="value" id="r-target">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">LIFESPAN</div>
+                        <div class="value" id="r-runs">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">LINES</div>
+                        <div class="value" id="r-lines">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">OPTIONS</div>
+                        <div class="value" id="r-opt" style="font-size:13px;">-</div>
+                    </div>
+                    <div class="result-item" style="background: rgba(110,231,255,.1); border-color: var(--accent2);">
+                        <div class="label" style="color: var(--accent2);">TOTAL COST</div>
+                        <div class="value" id="r-total" style="font-size: 28px;">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <button class="save-btn" onclick="saveAsImage()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    画像を保存する
+                </button>
+                <div class="note" style="margin-top: 15px;">※保存した画像はAI構築の控えとしてご利用いただけます。</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        LOTTO TOKYO / PROJECT BUILDER PROTOCOL
+    </div>
+</div>
+
+<script>
+    // State management
+    const state = {
+        theme: '',
+        base: '',
+        target: '',
+        runs: '',
+        lines: '',
+        opts: [],
+        total: 0
+    };
+
+    // DOM Elements for form
+    const els = {
+        sBase: document.getElementById('s-base'),
+        sTarget: document.getElementById('s-target'),
+        sRuns: document.getElementById('s-runs'),
+        sLines: document.getElementById('s-lines'),
+        sOpt: document.getElementById('s-opt'),
+        total: document.getElementById('total'),
+        btnConfirm: document.getElementById('btn-confirm'),
+        checks: [document.getElementById('c1'), document.getElementById('c2'), document.getElementById('c3')]
+    };
+
+    // SCREEN 1: Select Theme (Tap Image)
+    function selectTheme(themeName) {
+        state.theme = themeName;
+        
+        document.getElementById('screen-1').classList.remove('active');
+        document.getElementById('screen-2').classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    // SCREEN 2: Form Interaction
+    function updateFormState() {
+        const baseEl = document.querySelector('input[name="base"]:checked');
+        const targetEl = document.querySelector('input[name="target"]:checked');
+        const runsEl = document.querySelector('input[name="runs"]:checked');
+        const linesEl = document.querySelector('input[name="lines"]:checked');
+        const optEls = document.querySelectorAll('input[name="opt"]:checked');
+
+        let total = 0;
+
+        if (baseEl) { state.base = baseEl.value; els.sBase.innerText = baseEl.value; total += parseInt(baseEl.dataset.price); }
+        if (targetEl) { state.target = targetEl.value; els.sTarget.innerText = targetEl.value; total += parseInt(targetEl.dataset.price); }
+        if (runsEl) { state.runs = runsEl.value; els.sRuns.innerText = runsEl.value; total += parseInt(runsEl.dataset.price); }
+        if (linesEl) { state.lines = linesEl.value; els.sLines.innerText = linesEl.value; total += parseInt(linesEl.dataset.price); }
+        
+        state.opts = [];
+        optEls.forEach(el => {
+            state.opts.push(el.value);
+            total += parseInt(el.dataset.price);
+        });
+        els.sOpt.innerText = state.opts.length > 0 ? state.opts.join(' / ') : 'なし';
+
+        state.total = total;
+        els.total.innerText = '￥' + total.toLocaleString();
+
+        const allChecked = els.checks.every(chk => chk.checked);
+        const allRadiosSelected = baseEl && targetEl && runsEl && linesEl;
+        
+        els.btnConfirm.disabled = !(allChecked && allRadiosSelected);
+    }
+
+    // ラジオボタン選択時：状態を更新し、次のセクションへスライド
+    document.querySelectorAll('#screen-2 input[type="radio"]').forEach(input => {
+        input.addEventListener('change', function(e) {
+            updateFormState(); // 状態更新
+            
+            const currentSection = e.target.closest('.section');
+            if (currentSection) {
+                const nextSection = currentSection.nextElementSibling;
+                if (nextSection && nextSection.classList.contains('section')) {
+                    // 少し遅延を入れてからスムーズにスクロール
+                    setTimeout(() => {
+                        const headerOffset = 60; // 固定ヘッダーの高さ分調整
+                        const elementPosition = nextSection.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                    }, 300);
+                } else if (!nextSection) {
+                    // 最後のセクションの場合は下部のサマリーへスクロール
+                    setTimeout(() => {
+                        const checkArea = document.querySelector('.summary');
+                        if (checkArea) {
+                            const headerOffset = 60;
+                            const elementPosition = checkArea.getBoundingClientRect().top;
+                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                        }
+                    }, 300);
+                }
+            }
+        });
+    });
+
+    // チェックボックス選択時：状態更新のみ（複数選ぶためスクロールしない）
+    document.querySelectorAll('#screen-2 input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', updateFormState);
+    });
+
+    // SCREEN 3: Transition and Setup
+    function goToResult() {
+        document.getElementById('r-base').innerText = state.base || '-';
+        document.getElementById('r-target').innerText = state.target || '-';
+        document.getElementById('r-runs').innerText = state.runs || '-';
+        document.getElementById('r-lines').innerText = state.lines || '-';
+        document.getElementById('r-opt').innerText = state.opts.length > 0 ? state.opts.join(', ') : 'なし';
+        document.getElementById('r-total').innerText = '￥' + state.total.toLocaleString();
+
+        document.getElementById('screen-2').classList.remove('active');
+        document.getElementById('screen-3').classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    // IMAGE SAVING
+    function saveAsImage() {
+        const captureArea = document.getElementById('result-card');
+        
+        html2canvas(captureArea, {
+            backgroundColor: '#05070a',
+            scale: 2,
+            useCORS: true
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'AI_BUILDER_RESULT.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+
+</script>
+</body>
+</html>
