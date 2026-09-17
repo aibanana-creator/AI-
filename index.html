@@ -57,8 +57,9 @@
     }
     
     @keyframes blink {
-      0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--accent); }
-      50% { opacity: 0.3; text-shadow: none; }
+      0%, 50% { opacity: 1; }
+      75% { opacity: 0; }
+      100% { opacity: 1; }
     }
 
     /* === SCREEN 1 === */
@@ -451,7 +452,6 @@
                         <!-- Change this button to go to screen 3 -->
                         <button class="cta" id="btn-confirm" disabled onclick="goToRegistration()">このスペックで確定する</button>
                         <div class="note">
-                            ※確定後、証明書画像を発行できます。<br>
                             ※予想は将来の当せんを保証するものではありません。
                         </div>
                     </div>
@@ -533,7 +533,7 @@
     </div>
 
     <!-- Random message box (Fixed Overlay) -->
-    <div id="random-msg-box" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 440px; z-index: 1000; font-size: 11px; text-align: center; color: var(--accent); border: 1px solid var(--accent); padding: 12px; border-radius: 6px; background: rgba(10, 15, 25, 0.95); backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0,0,0,0.8); animation: blink 2s infinite;">
+    <div id="random-msg-box" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 440px; z-index: 1000; text-align: center; color: var(--accent); border: 2px solid var(--accent); padding: 24px; border-radius: 8px; background: rgba(10, 15, 25, 0.95); backdrop-filter: blur(8px); box-shadow: 0 10px 40px rgba(0,0,0,0.9); animation: blink 6s ease-in-out infinite;">
         <!-- Text will be inserted here -->
     </div>
 </div>
@@ -601,63 +601,92 @@
         const msgBox = document.getElementById('random-msg-box');
         if (state.opts.length > 0 && msgBox.style.display === 'none') {
             const msgs = [
-                // R級 (Normal: ~60%)
-                { text: "【解析完了】優れたバランスの組み合わせです", prob: 6, tier: "R" },
-                { text: "【システム解析】当せん率と回収率の黄金比を保った構成です", prob: 6, tier: "R" },
-                { text: "【最適化完了】無駄のない美しいアルゴリズムが形成されました", prob: 6, tier: "R" },
-                { text: "【安定志向】リスクを徹底排除した堅実かつ強力な布陣です", prob: 6, tier: "R" },
-                { text: "【データ検証】過去のシミュレーションで高い実績を残した構成です", prob: 6, tier: "R" },
-                { text: "【カスタマイズ完了】あなたの直感がシステムに完璧に反映されました", prob: 6, tier: "R" },
-                { text: "【解析完了】長期的な目線で高いパフォーマンスが期待できます", prob: 6, tier: "R" },
-                { text: "【解析完了】堅実さと爆発力を兼ね備えたハイブリッド設定です", prob: 6, tier: "R" },
-                { text: "【チューニング完了】隙のない完璧なロジックが組み上がりました", prob: 6, tier: "R" },
-                { text: "【システム通知】現在最もトレンドに乗っている構成の一つです", prob: 6, tier: "R" },
-                
-                // SR級 (Rare: 25%)
-                { text: "【推奨設定】AI開発チームが理想とする完成度の高いカスタムです", prob: 5, tier: "SR" },
-                { text: "【特化型】一点突破に長けた非常にアグレッシブな組み合わせです", prob: 5, tier: "SR" },
-                { text: "【シナジー効果】ベースAIとパラメータの相性が98%を超過しました", prob: 5, tier: "SR" },
-                { text: "【完全同期】ベースAIの潜在能力を120%引き出す理想的な設定です", prob: 5, tier: "SR" },
-                { text: "【限界突破】AIのリミッターを解除する非常に攻撃的な設定です", prob: 5, tier: "SR" },
-                
-                // SSR級 (Super Rare: 14%)
-                { text: "【SSR確定級】奇跡的な相性！まさに最強のカスタム構成です！", prob: 3.5, tier: "SSR" },
-                { text: "【激熱】近日のトレンドと完全に合致する一撃必殺構成です！", prob: 3.5, tier: "SSR" },
-                { text: "【極秘】一般には非公開とされるプレミアムな組み合わせが完成しました", prob: 3.5, tier: "SSR" },
-                { text: "【最高評価】AI自身が「完璧」と評価した至高のカスタムです", prob: 3.5, tier: "SSR" },
-                
-                // UR級 (Ultra Rare: 1%)
-                { text: "【SYSTEM ERROR!?】想定上限を突破！天文学的確率の『神』構成です", prob: 1, tier: "UR" }
+                // UR級 (Gold) - 5% total
+                { tier: "UR", text: "ふむ、堅実でスキのない構成ですね。<br>実戦で安定したパフォーマンスを発揮してくれそうです！", prob: 5/6 },
+                { tier: "UR", text: "基本性能をしっかりと抑えた綺麗なビルドです。<br>扱いやすさと実用性を高次元で両立していますね！", prob: 5/6 },
+                { tier: "UR", text: "都市の標準データを見事に活かしたスマートな設計です。<br>堅実な当せん実績を積み上げてくれそうな予感がします！", prob: 5/6 },
+                { tier: "UR", text: "無駄なノイズを抑えた非常にバランスの良い調整です。<br>着実に狙いを定めていく堅実派ですね！", prob: 5/6 },
+                { tier: "UR", text: "美しいロジックバランスです。<br>過酷な抽せん舞台でもブレずに安定した数理を弾き出してくれるでしょう！", prob: 5/6 },
+                { tier: "UR", text: "なるほど、理にかなったパーツ構成です。<br>日々の運用でジワジワと真価を発揮してくれそうな頼もしさがあります！", prob: 5/6 },
+
+                // SSSR級 (Purple) - 10% total
+                { tier: "SSSR", text: "おお……これはなかなか攻めた設計ですね！<br>一撃の爆発力を秘めた鋭いロジックを感じます！", prob: 10/6 },
+                { tier: "SSSR", text: "通常では考えられない尖ったカスタマイズです！<br>ハマった時の跳ね返りは相当なものになるかもしれません……！", prob: 10/6 },
+                { tier: "SSSR", text: "開発部でも滅多に組まない攻撃的なパラメータです！<br>この構成、抽せん舞台に大きな波乱を起こす可能性がありますよ……！", prob: 10/6 },
+                { tier: "SSSR", text: "口数とロジックを極限まで尖らせましたね！<br>一発勝負のロマンがぎっしりと詰まったロマン砲です！", prob: 10/6 },
+                { tier: "SSSR", text: "一撃奪取への執念を感じる素晴らしいチューニングです！<br>高額当せんの領域を力ずくで引き寄せに行く気ですね……！", prob: 10/6 },
+                { tier: "SSSR", text: "このロジックの振り切り方は実に面白い！<br>過去の類似データでも一発跳ねた記録がある、注目の構成です！", prob: 10/6 },
+
+                // SSR級 (Red) - 15% total (Original SR text)
+                { tier: "SSR", text: "なるほど、そう来ましたか……！<br>僕たち開発側の人間では絶対に思いつかない、見事な盲点を突いたカスタマイズです！", prob: 15/6 },
+                { tier: "SSR", text: "変則的ですが、実に美しいロジックです……！<br>都市の過去データにない未知のルートを開拓してくれるかもしれません！", prob: 15/6 },
+                { tier: "SSR", text: "これは実に独特な感性ですね！<br>一見相反するパーツが、不思議と恐ろしいシナジーを生み出しそうな予感がします……！", prob: 15/6 },
+                { tier: "SSR", text: "まさに『大人の自由研究』の真骨頂！<br>あなた独自の理論が本物の抽せん舞台で証明される瞬間が楽しみでなりません！", prob: 15/6 },
+                { tier: "SSR", text: "計算式の上では未知数ですが、直感が「ヤバい」と告げています……！<br>これだから自作AIのビルドはやめられませんね！", prob: 15/6 },
+                { tier: "SSR", text: "他者との被りを徹底的に排除した完全独走仕様ですね！<br>もしこれで当せんしたら……独り占めの配当は大変なことになりますよ！", prob: 15/6 },
+
+                // SR級 (Green) - 30% total (Original SSR text)
+                { tier: "SR", text: "こ、この組み合わせは……！<br>メインサーバーの演算ユニットがもの凄い熱量を検知しています……！！", prob: 30/6 },
+                { tier: "SR", text: "怪物級の頭脳にこのオプションを掛け合わせますか……！<br>僕たち開発部すら予測不能の「超絶化学反応」が起きるかもしれません！！", prob: 30/6 },
+                { tier: "SR", text: "潜在能力は、間違いなく規格外です……！<br>ロトTOKYOの抽せん史を塗り替える真のモンスターが誕生してしまうかも……！！", prob: 30/6 },
+                { tier: "SR", text: "す、すごすぎる……！！<br>都市中枢のメインサーバーを極限まで占有する、とんでもない怪物機が爆誕しようとしています……！！", prob: 30/6 },
+                { tier: "SR", text: "このスペック、底知れぬ潜在能力を感じます……！<br>開発部の固定概念を完全に破壊する伝説の一機になるかもしれません！！！", prob: 30/6 },
+                { tier: "SR", text: "ゾクゾクしてきました……！<br>このAIが本物の抽せん舞台に放たれた時、一体どんな数字を弾き出してしまうのか……！！", prob: 30/6 },
+
+                // レア (Blue) - 40% total
+                { tier: "R", text: "くっ……！開発者として、この組み合わせを試されると嫉妬すら覚えます……！<br>絶対に面白い結果を出してくれますよ、これ！", prob: 40/6 },
+                { tier: "R", text: "思わず開発者としての血が騒ぎます！<br>僕の手動チューニングを組み合わせたら、一体どうなってしまうのか……ゴクリ。", prob: 40/6 },
+                { tier: "R", text: "完璧です！あなたの直感と都市の頭脳が、寸分の狂いもなく噛み合わさった奇跡的なビルドだと思います！", prob: 40/6 },
+                { tier: "R", text: "開発部のモニターを見つめる手が震えています……！<br>このAIが実戦投入される瞬間が、今から待ちきれません……！！", prob: 40/6 },
+                { tier: "R", text: "素晴らしい！パーツ選びのセンスに脱帽です。<br>まさにあなただけの「最強の相棒」と呼ぶにふさわしい仕上がりですね！", prob: 40/6 },
+                { tier: "R", text: "このAIになら、僕も都市の未来を賭けてみたい……！<br>それほどの圧倒的なロマンとオーラを解き放っています！！！", prob: 40/6 }
             ];
-            
-            const rand = Math.random() * 100;
-            let sum = 0;
-            for (let m of msgs) {
-                sum += m.prob;
-                if (rand <= sum) {
-                    msgBox.innerText = m.text;
-                    if (m.tier === "UR") {
-                        msgBox.style.color = '#ff4444';
-                        msgBox.style.borderColor = '#ff4444';
-                        msgBox.style.background = 'rgba(30, 5, 5, 0.95)';
-                        msgBox.style.textShadow = '0 0 5px rgba(255, 68, 68, 0.5)';
-                    } else if (m.tier === "SSR") {
-                        msgBox.style.color = 'var(--gold)';
-                        msgBox.style.borderColor = 'var(--gold)';
-                        msgBox.style.background = 'rgba(25, 20, 5, 0.95)';
-                        msgBox.style.textShadow = '0 0 5px rgba(230,200,131, 0.5)';
-                    } else if (m.tier === "SR") {
-                        msgBox.style.color = 'var(--accent2)';
-                        msgBox.style.borderColor = 'var(--accent2)';
-                        msgBox.style.background = 'rgba(5, 25, 10, 0.95)';
-                        msgBox.style.textShadow = 'none';
-                    } else {
-                        msgBox.style.color = 'var(--accent)';
-                        msgBox.style.borderColor = 'var(--accent)';
-                        msgBox.style.background = 'rgba(5, 15, 30, 0.95)';
-                        msgBox.style.textShadow = 'none';
+
+            const styleMessage = (m, box) => {
+                const titleHtml = '<div style="font-size: 18px; font-weight: bold; margin-bottom: 8px; letter-spacing: 0.1em; color: #ffffff; text-shadow: 0 0 5px rgba(255,255,255,0.5);">☆ 開発部からの評価 ☆</div>';
+                box.innerHTML = titleHtml + '<div style="font-size: 13px; font-weight: normal; line-height: 1.6; color: #ffffff;">' + m.text + '</div>';
+                
+                if (m.tier === "UR") {
+                    // 金
+                    box.style.borderColor = '#e6c883';
+                    box.style.background = 'rgba(25, 20, 5, 0.95)';
+                    box.style.boxShadow = '0 0 15px rgba(230,200,131, 0.4)';
+                } else if (m.tier === "SSSR") {
+                    // 紫
+                    box.style.borderColor = '#b983e6';
+                    box.style.background = 'rgba(20, 5, 25, 0.95)';
+                    box.style.boxShadow = '0 0 15px rgba(185,131,230, 0.4)';
+                } else if (m.tier === "SSR") {
+                    // 赤
+                    box.style.borderColor = '#ff4444';
+                    box.style.background = 'rgba(30, 5, 5, 0.95)';
+                    box.style.boxShadow = '0 0 15px rgba(255, 68, 68, 0.4)';
+                } else if (m.tier === "SR") {
+                    // 緑
+                    box.style.borderColor = '#b3e5a3';
+                    box.style.background = 'rgba(5, 25, 10, 0.95)';
+                    box.style.boxShadow = '0 0 15px rgba(179, 229, 163, 0.3)';
+                } else {
+                    // 青 (レア)
+                    box.style.borderColor = '#7ebaf5';
+                    box.style.background = 'rgba(5, 15, 30, 0.95)';
+                    box.style.boxShadow = '0 0 15px rgba(126, 186, 245, 0.3)';
+                }
+            };
+
+            if (state.base === 'ASURA — アシュラ') {
+                const urMsgs = msgs.filter(m => m.tier === "UR");
+                const urMsg = urMsgs[Math.floor(Math.random() * urMsgs.length)];
+                styleMessage(urMsg, msgBox);
+            } else {
+                const rand = Math.random() * 100;
+                let sum = 0;
+                for (let m of msgs) {
+                    sum += m.prob;
+                    if (rand <= sum) {
+                        styleMessage(m, msgBox);
+                        break;
                     }
-                    break;
                 }
             }
             msgBox.style.display = 'block';
