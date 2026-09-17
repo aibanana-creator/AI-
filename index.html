@@ -8,8 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700;900&display=swap" rel="stylesheet">
-    <!-- html2canvas -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
     :root{
       --bg:#030406;
@@ -56,6 +54,11 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(15px); filter: blur(4px); }
       to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    
+    @keyframes blink {
+      0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--accent); }
+      50% { opacity: 0.3; text-shadow: none; }
     }
 
     /* === SCREEN 1 === */
@@ -205,6 +208,7 @@
     label.option.char-bg .opt-sub { text-shadow: 0 1px 3px rgba(0,0,0,0.9); font-weight: 400; color: rgba(255,255,255,0.9);}
     
     .opt-title{font-weight:400; font-size: 15px; letter-spacing: 0.05em; color: #fff;}
+    .opt-type{display: block; font-weight: 700; font-size: 14px; color: #fff; margin-top: 2px;}
     .opt-sub{display:block; color:var(--muted); font-size:11px; margin-top:4px; letter-spacing: 0.05em;}
     .price{font-family: sans-serif; font-weight:400; color:var(--muted); font-size:12px; letter-spacing: 0.05em;}
     .price.plus{color:var(--gold)}
@@ -290,33 +294,33 @@
 
                         <div class="tier"><span>通常AIモデル</span><span class="badge">BASIC</span></div>
                         <div class="options">
-                            <label class="option char-bg" style="--bg-url: url('./アテナ.png');"><input type="radio" name="base" value="ATHENA — アテナ" data-price="0"><span><span class="opt-title">ATHENA — アテナ</span><span class="opt-sub">直近偏差×相関補正モデル</span></span><span class="price">＋0円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./コロンブス.png');"><input type="radio" name="base" value="COLUMBUS — コロンブス" data-price="0"><span><span class="opt-title">COLUMBUS — コロンブス</span><span class="opt-sub">未踏領域スキャン</span></span><span class="price">＋0円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./リョウマ.png');"><input type="radio" name="base" value="RYOMA — リョウマ" data-price="0"><span><span class="opt-title">RYOMA — リョウマ</span><span class="opt-sub">風向き察知×先回り設計</span></span><span class="price">＋0円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./トランプ.png');"><input type="radio" name="base" value="TRUMP — トランプ" data-price="0"><span><span class="opt-title">TRUMP — トランプ</span><span class="opt-sub">強気交渉モデル</span></span><span class="price">＋0円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./ガリレオ.png');"><input type="radio" name="base" value="GALILEO — ガリレオ" data-price="0"><span><span class="opt-title">GALILEO — ガリレオ</span><span class="opt-sub">法則抽出リサーチモデル</span></span><span class="price">＋0円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./ダヴィンチ.png');"><input type="radio" name="base" value="da Vinci — ダ・ヴィンチ" data-price="0"><span><span class="opt-title">da Vinci — ダ・ヴィンチ</span><span class="opt-sub">構造最適化クリエイティブ</span></span><span class="price">＋0円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./エジソン.png');"><input type="radio" name="base" value="EDISON — エジソン" data-price="0"><span><span class="opt-title">EDISON — エジソン</span><span class="opt-sub">データ蓄積アップデート</span></span><span class="price">＋0円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./ノストラダムス.png');"><input type="radio" name="base" value="NOSTRADAMUS — ノストラダムス" data-price="0"><span><span class="opt-title">NOSTRADAMUS — ノストラダムス</span><span class="opt-sub">予言解析モデル</span></span><span class="price">＋0円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./アテナ.png');"><input type="radio" name="base" value="ATHENA — アテナ" data-price="3000"><span><span class="opt-title">ATHENA — アテナ<span class="opt-type">（バランス型）</span></span><span class="opt-sub">直近偏差×相関補正モデル</span></span><span class="price plus">＋3,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./コロンブス.png');"><input type="radio" name="base" value="COLUMBUS — コロンブス" data-price="3000"><span><span class="opt-title">COLUMBUS — コロンブス<span class="opt-type">（一発狙い型）</span></span><span class="opt-sub">未踏領域スキャン×変動トレンド探索モデル</span></span><span class="price plus">＋3,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./リョウマ.png');"><input type="radio" name="base" value="RYOMA — リョウマ" data-price="3000"><span><span class="opt-title">RYOMA — リョウマ<span class="opt-type">（スピード型）</span></span><span class="opt-sub">風向き察知×一手先先回りルート設計モデル</span></span><span class="price plus">＋3,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./トランプ.png');"><input type="radio" name="base" value="TRUMP — トランプ" data-price="3000"><span><span class="opt-title">TRUMP — トランプ<span class="opt-type">（強気勝負型）</span></span><span class="opt-sub">当せんファースト×強気交渉モデル</span></span><span class="price plus">＋3,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./ガリレオ.png');"><input type="radio" name="base" value="GALILEO — ガリレオ" data-price="3000"><span><span class="opt-title">GALILEO — ガリレオ<span class="opt-type">（研究型）</span></span><span class="opt-sub">観測実験×法則抽出リサーチモデル</span></span><span class="price plus">＋3,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./ダヴィンチ.png');"><input type="radio" name="base" value="da Vinci — ダ・ヴィンチ" data-price="3000"><span><span class="opt-title">da Vinci — ダ・ヴィンチ<span class="opt-type">（構造設計型）</span></span><span class="opt-sub">設計図思考×構造最適化クリエイティブモデル</span></span><span class="price plus">＋3,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./エジソン.png');"><input type="radio" name="base" value="EDISON — エジソン" data-price="3000"><span><span class="opt-title">EDISON — エジソン<span class="opt-type">（改良進化型）</span></span><span class="opt-sub">発明検証×データ蓄積アップデートモデル</span></span><span class="price plus">＋3,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./ノストラダムス.png');"><input type="radio" name="base" value="NOSTRADAMUS — ノストラダムス" data-price="3000"><span><span class="opt-title">NOSTRADAMUS — ノストラダムス<span class="opt-type">（予言型）</span></span><span class="opt-sub">予言解析×未来兆候クアトレインモデル</span></span><span class="price plus">＋3,000円</span></label>
                         </div>
 
-                        <div class="tier"><span>2025年実績ランカーAI</span><span class="badge rank">RANKER</span></div>
+                        <div class="tier"><span>2025年実績ランカーAIモデル</span><span class="badge rank">RANKER</span></div>
                         <div class="options">
-                            <label class="option char-bg" style="--bg-url: url('./ショウヘイ.png');"><input type="radio" name="base" value="SHOHEI — ショウヘイ" data-price="3500"><span><span class="opt-title">SHOHEI — ショウヘイ</span><span class="opt-sub">【当せん率1位】二刀流解析</span></span><span class="price plus">＋3,500円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./ヒミコ.png');"><input type="radio" name="base" value="HIMIKO — ヒミコ" data-price="3000"><span><span class="opt-title">HIMIKO — ヒミコ</span><span class="opt-sub">【当せん率2位】神託予知</span></span><span class="price plus">＋3,000円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./ノブナガ.png');"><input type="radio" name="base" value="NOBUNAGA — ノブナガ" data-price="2500"><span><span class="opt-title">NOBUNAGA — ノブナガ</span><span class="opt-sub">【ミニロト2位】一点突破</span></span><span class="price plus">＋2,500円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./イエヤス.png');"><input type="radio" name="base" value="IEYASU — イエヤス" data-price="2000"><span><span class="opt-title">IEYASU — イエヤス</span><span class="opt-sub">【総合4位】長期布陣</span></span><span class="price plus">＋2,000円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./ベンケイ.png');"><input type="radio" name="base" value="BENKEI — ベンケイ" data-price="2500"><span><span class="opt-title">BENKEI — ベンケイ</span><span class="opt-sub">【獲得金3位】鉄壁守護</span></span><span class="price plus">＋2,500円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./ホームズ.png');"><input type="radio" name="base" value="HOLMES — ホームズ" data-price="2500"><span><span class="opt-title">HOLMES — ホームズ</span><span class="opt-sub">【ナンバーズ3位】痕跡抽出</span></span><span class="price plus">＋2,500円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./モモタロウ.png');"><input type="radio" name="base" value="MOMOTARO — モモタロウ" data-price="2000"><span><span class="opt-title">MOMOTARO — モモタロウ</span><span class="opt-sub">【週間3位】オニ討伐</span></span><span class="price plus">＋2,000円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./マイケル.png');"><input type="radio" name="base" value="MICHAEL — マイケル" data-price="2500"><span><span class="opt-title">MICHAEL — マイケル</span><span class="opt-sub">【N4獲得金2位】ヒットメイカー</span></span><span class="price plus">＋2,500円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./シンゲン.png');"><input type="radio" name="base" value="SHINGEN — シンゲン" data-price="2500"><span><span class="opt-title">SHINGEN — シンゲン</span><span class="opt-sub">【ロト6回収率3位】風林火山</span></span><span class="price plus">＋2,500円</span></label>
-                            <label class="option char-bg" style="--bg-url: url('./ケンシン.png');"><input type="radio" name="base" value="KENSHIN — ケンシン" data-price="2500"><span><span class="opt-title">KENSHIN — ケンシン</span><span class="opt-sub">【N3獲得金2位】軍神直感</span></span><span class="price plus">＋2,500円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./ショウヘイ.png');"><input type="radio" name="base" value="SHOHEI — ショウヘイ" data-price="8500"><span><span class="opt-title">SHOHEI — ショウヘイ</span><span class="opt-sub"><span class="opt-type">【新機種当せん率 1位】</span>二刀流解析×長打型勝負モデル</span></span><span class="price plus">＋8,500円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./ヒミコ.png');"><input type="radio" name="base" value="HIMIKO — ヒミコ" data-price="6000"><span><span class="opt-title">HIMIKO — ヒミコ</span><span class="opt-sub"><span class="opt-type">【新機種当せん率 2位】</span>神託予知×霊的兆候読解モデル</span></span><span class="price plus">＋6,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./ノブナガ.png');"><input type="radio" name="base" value="NOBUNAGA — ノブナガ" data-price="13000"><span><span class="opt-title">NOBUNAGA — ノブナガ</span><span class="opt-sub"><span class="opt-type">【ミニロト獲得金 2位】</span>天下布武×一点突破制圧モデル</span></span><span class="price plus">＋13,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./イエヤス.png');"><input type="radio" name="base" value="IEYASU — イエヤス" data-price="19000"><span><span class="opt-title">IEYASU — イエヤス</span><span class="opt-sub"><span class="opt-type">【総合当せん率 4位】</span>長期布陣×堅実勝機構築モデル</span></span><span class="price plus">＋19,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./ベンケイ.png');"><input type="radio" name="base" value="BENKEI — ベンケイ" data-price="16800"><span><span class="opt-title">BENKEI — ベンケイ</span><span class="opt-sub"><span class="opt-type">【ロト＆ナンバーズ獲得金 3位】</span>鉄壁守護×剛腕突破モデル</span></span><span class="price plus">＋16,800円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./ホームズ.png');"><input type="radio" name="base" value="HOLMES — ホームズ" data-price="11000"><span><span class="opt-title">HOLMES — ホームズ</span><span class="opt-sub"><span class="opt-type">【ナンバーズ当せん率 3位】</span>痕跡抽出×矛盾排除モデル</span></span><span class="price plus">＋11,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./モモタロウ.png');"><input type="radio" name="base" value="MOMOTARO — モモタロウ" data-price="6800"><span><span class="opt-title">MOMOTARO — モモタロウ</span><span class="opt-sub"><span class="opt-type">【週間当せん率 3位】</span>オニ討伐×お供連携モデル</span></span><span class="price plus">＋6,800円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./マイケル.png');"><input type="radio" name="base" value="MICHAEL — マイケル" data-price="9000"><span><span class="opt-title">MICHAEL — マイケル</span><span class="opt-sub"><span class="opt-type">【ナンバーズ4獲得金 2位】</span>創造的ヒットメイカーモデル</span></span><span class="price plus">＋9,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./シンゲン.png');"><input type="radio" name="base" value="SHINGEN — シンゲン" data-price="12000"><span><span class="opt-title">SHINGEN — シンゲン</span><span class="opt-sub"><span class="opt-type">【ロト6回収率 3位】</span>『風林火山』ストラテジーモデル</span></span><span class="price plus">＋12,000円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./ケンシン.png');"><input type="radio" name="base" value="KENSHIN — ケンシン" data-price="5500"><span><span class="opt-title">KENSHIN — ケンシン</span><span class="opt-sub"><span class="opt-type">【ナンバーズ3獲得金 2位】</span>軍神直感×毘沙門天の化身モデル</span></span><span class="price plus">＋5,500円</span></label>
                         </div>
 
-                        <div class="tier"><span>最高機密モンスターAI</span><span class="badge secret">SECRET</span></div>
+                        <div class="tier"><span>最高機密モンスターAIモデル</span><span class="badge secret">SECRET</span></div>
                         <div class="options">
-                            <label class="option char-bg" style="--bg-url: url('./アシュラ.png'); --bg-pos: center 45%;"><input type="radio" name="base" value="ASURA — アシュラ" data-price="7500"><span><span class="opt-title">ASURA — アシュラ</span><span class="opt-sub">多面演算モンスターモデル</span></span><span class="price plus">＋7,500円</span></label>
+                            <label class="option char-bg" style="--bg-url: url('./アシュラ.png'); --bg-pos: center 45%;"><input type="radio" name="base" value="ASURA — アシュラ" data-price="85000"><span><span class="opt-title">ASURA — アシュラ</span><span class="opt-sub"><span class="opt-type">【通算獲得当せん金 40億円超】</span>多面演算×市場破壊モンスターモデル</span></span><span class="price plus">＋85,000円</span></label>
                         </div>
                     </section>
 
@@ -325,14 +329,15 @@
                         <div class="stephead">
                             <div class="stepno">STEP 02</div>
                             <div>
-                                <h2>ターゲットくじ種</h2>
+                                <h2>ターゲットくじ種の決定（専門領域）</h2>
+                                <p style="color:var(--text-muted); font-size:12px; margin-top:5px;">※特化させたいくじ種を1つ選択してください。</p>
                             </div>
                         </div>
-                        <div class="mini-grid">
-                            <label class="option"><input type="radio" name="target" value="ロト7 特化型" data-price="0"><span><span class="opt-title">ロト7 特化型</span></span><span class="price">＋0円</span></label>
-                            <label class="option"><input type="radio" name="target" value="ロト6 特化型" data-price="0"><span><span class="opt-title">ロト6 特化型</span></span><span class="price">＋0円</span></label>
-                            <label class="option"><input type="radio" name="target" value="ミニロト 特化型" data-price="0"><span><span class="opt-title">ミニロト 特化型</span></span><span class="price">＋0円</span></label>
-                            <label class="option"><input type="radio" name="target" value="ナンバーズ3・4 特化型" data-price="0"><span><span class="opt-title">ナンバーズ 特化</span></span><span class="price">＋0円</span></label>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="target" value="ロト7 特化型" data-price="12000"><span><span class="opt-title">ロト7 特化型</span></span><span class="price plus">＋12,000円</span></label>
+                            <label class="option"><input type="radio" name="target" value="ロト6 特化型" data-price="8800"><span><span class="opt-title">ロト6 特化型</span></span><span class="price plus">＋8,800円</span></label>
+                            <label class="option"><input type="radio" name="target" value="ミニロト 特化型" data-price="5000"><span><span class="opt-title">ミニロト 特化型</span></span><span class="price plus">＋5,000円</span></label>
+                            <label class="option"><input type="radio" name="target" value="ナンバーズ3・4 特化型" data-price="1000"><span><span class="opt-title">ナンバーズ3・4 特化型</span></span><span class="price plus">＋1,000円</span></label>
                         </div>
                     </section>
 
@@ -341,13 +346,14 @@
                         <div class="stephead">
                             <div class="stepno">STEP 03</div>
                             <div>
-                                <h2>稼働エネルギー</h2>
+                                <h2>稼働エネルギー（予想出力回数＝AIの寿命）</h2>
+                                <p style="color:var(--text-muted); font-size:12px; margin-top:5px;">※都市サーバーの占有期間・データ校正回数を設定します。</p>
                             </div>
                         </div>
                         <div class="options">
-                            <label class="option"><input type="radio" name="runs" value="1回限定" data-price="0"><span><span class="opt-title">1回限定</span><span class="opt-sub">ピンポイント勝負</span></span><span class="price">＋0円</span></label>
-                            <label class="option"><input type="radio" name="runs" value="3回稼働" data-price="2500"><span><span class="opt-title">3回稼働</span><span class="opt-sub">標準実戦</span></span><span class="price plus">＋2,500円</span></label>
-                            <label class="option"><input type="radio" name="runs" value="5回稼働" data-price="5000"><span><span class="opt-title">5回稼働</span><span class="opt-sub">最大寿命</span></span><span class="price plus">＋5,000円</span></label>
+                            <label class="option"><input type="radio" name="runs" value="1回限定" data-price="4000"><span><span class="opt-title">1回限定</span><span class="opt-sub">ピンポイント単発勝負モデル</span></span><span class="price plus">＋4,000円</span></label>
+                            <label class="option"><input type="radio" name="runs" value="3回稼働" data-price="15000"><span><span class="opt-title">3回稼働</span><span class="opt-sub">標準実戦モデル</span></span><span class="price plus">＋15,000円</span></label>
+                            <label class="option"><input type="radio" name="runs" value="5回稼働" data-price="50000"><span><span class="opt-title">5回稼働</span><span class="opt-sub">最大寿命・長期検証モデル</span></span><span class="price plus">＋50,000円</span></label>
                         </div>
                     </section>
 
@@ -356,16 +362,17 @@
                         <div class="stephead">
                             <div class="stepno">STEP 04</div>
                             <div>
-                                <h2>提供口数</h2>
+                                <h2>提供口数の拡張（並行演算パラメータ）</h2>
+                                <p style="color:var(--text-muted); font-size:12px; margin-top:5px;">※1回あたりの予想買い目数を設定します。（標準は5口）</p>
                             </div>
                         </div>
-                        <div class="mini-grid">
-                            <label class="option"><input type="radio" name="lines" value="5口仕様" data-price="0"><span><span class="opt-title">5口仕様</span></span><span class="price">＋0円</span></label>
-                            <label class="option"><input type="radio" name="lines" value="6口仕様" data-price="1000"><span><span class="opt-title">6口仕様</span></span><span class="price plus">＋1,000円</span></label>
-                            <label class="option"><input type="radio" name="lines" value="7口仕様" data-price="2000"><span><span class="opt-title">7口仕様</span></span><span class="price plus">＋2,000円</span></label>
-                            <label class="option"><input type="radio" name="lines" value="8口仕様" data-price="3000"><span><span class="opt-title">8口仕様</span></span><span class="price plus">＋3,000円</span></label>
-                            <label class="option"><input type="radio" name="lines" value="9口仕様" data-price="4000"><span><span class="opt-title">9口仕様</span></span><span class="price plus">＋4,000円</span></label>
-                            <label class="option"><input type="radio" name="lines" value="10口仕様" data-price="5000"><span><span class="opt-title">10口仕様</span></span><span class="price plus">＋5,000円</span></label>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="lines" value="5口仕様" data-price="0"><span><span class="opt-title">5口仕様</span><span class="opt-sub">通常パラメータ</span></span><span class="price">＋0円</span></label>
+                            <label class="option"><input type="radio" name="lines" value="6口仕様" data-price="4000"><span><span class="opt-title">6口仕様</span><span class="opt-sub">1口拡張</span></span><span class="price plus">＋4,000円</span></label>
+                            <label class="option"><input type="radio" name="lines" value="7口仕様" data-price="7000"><span><span class="opt-title">7口仕様</span><span class="opt-sub">2口拡張</span></span><span class="price plus">＋7,000円</span></label>
+                            <label class="option"><input type="radio" name="lines" value="8口仕様" data-price="11000"><span><span class="opt-title">8口仕様</span><span class="opt-sub">3口拡張</span></span><span class="price plus">＋11,000円</span></label>
+                            <label class="option"><input type="radio" name="lines" value="9口仕様" data-price="15000"><span><span class="opt-title">9口仕様</span><span class="opt-sub">4口拡張</span></span><span class="price plus">＋15,000円</span></label>
+                            <label class="option"><input type="radio" name="lines" value="10口仕様" data-price="20000"><span><span class="opt-title">10口仕様</span><span class="opt-sub">最大拡張・高密度網羅</span></span><span class="price plus">＋20,000円</span></label>
                         </div>
                     </section>
 
@@ -374,21 +381,28 @@
                         <div class="stephead">
                             <div class="stepno">STEP 05</div>
                             <div>
-                                <h2>オプション</h2>
+                                <h2>開発トッピング・オプション</h2>
+                                <p style="color:var(--text-muted); font-size:12px; margin-top:5px;">※複数選択可能です。（選ばなくても可）</p>
                             </div>
                         </div>
+                        
+                        <div class="tier" style="margin: 20px 0 10px 0; font-size: 14px; padding: 10px 15px; border-left: 3px solid var(--accent);">
+                            <span>① 基本解析プロトコル（スタイル調整）</span>
+                        </div>
                         <div class="options">
-                            <label class="option"><input type="checkbox" name="opt" value="手動チューニング" data-price="3500"><span><span class="opt-title">田中敬一郎 手動チューニング</span></span><span class="price plus">＋3,500円</span></label>
-                            <label class="option"><input type="checkbox" name="opt" value="HOT偏重" data-price="1000"><span><span class="opt-title">HOT偏重・トレンド追従</span></span><span class="price plus">＋1,000円</span></label>
-                            <label class="option"><input type="checkbox" name="opt" value="COLD逆張り" data-price="1500"><span><span class="opt-title">COLD逆張り・ジャックポット</span></span><span class="price plus">＋1,500円</span></label>
-                            <label class="option"><input type="checkbox" name="opt" value="ノイズカット" data-price="2000"><span><span class="opt-title">末尾相関・連番ノイズカット</span></span><span class="price plus">＋2,000円</span></label>
-                            <label class="option"><input type="checkbox" name="opt" value="アンチ・クラウディング" data-price="3000"><span><span class="opt-title">アンチ・クラウディング</span></span><span class="price plus">＋3,000円</span></label>
+                            <label class="option"><input type="checkbox" name="opt" value="ノーマル・チューン" data-price="2000"><span><span class="opt-title">【バランス型】<br>ノーマル・チューン</span><span class="opt-sub">基本ロジックをそのまま活かし、<br>偏りのない安定した買い目を展開する標準仕様。</span></span><span class="price plus">＋2,000円</span></label>
+                            <label class="option"><input type="checkbox" name="opt" value="HOT追従＆ノイズ除去" data-price="3500"><span><span class="opt-title">【安定志向】<br>HOT追従＆ノイズ除去プロトコル</span><span class="opt-sub">直近の出現傾向が高い勢いのある数字を捉えつつ、<br>無駄なノイズをカットする安定重視コード。</span></span><span class="price plus">＋3,500円</span></label>
+                            <label class="option"><input type="checkbox" name="opt" value="COLD逆張り" data-price="7000"><span><span class="opt-title">【一撃特化】<br>COLD逆張り＆ジャックポット・ダイブ</span><span class="opt-sub">長期未出現の数字をあえて組み込み、<br>跳ね返りの一撃・高額配当を力ずくで<br>狙いに行く超攻撃型コード。</span></span><span class="price plus">＋7,000円</span></label>
                         </div>
 
-                        <div class="locked">
-                            <strong>AI命名プロトコル：LOCKED</strong><br>
-                            決済完了後、最終工程として専属AIのコードネーム入力画面が解放されます。
+                        <div class="tier" style="margin: 30px 0 10px 0; font-size: 14px; padding: 10px 15px; border-left: 3px solid var(--accent);">
+                            <span>② 専門調整・拡張プロトコル</span>
                         </div>
+                        <div class="options">
+                            <label class="option"><input type="checkbox" name="opt" value="手動チューニング" data-price="6000"><span><span class="opt-title">AI開発部門<br>田中敬一郎の手動チューニング</span><span class="opt-sub">実戦でのブレを抑え、<br>過剰最適化を排除する開発者直伝の最終微調整コード。</span></span><span class="price plus">＋6,000円</span></label>
+                            <label class="option"><input type="checkbox" name="opt" value="アンチ・クラウディング" data-price="10000"><span><span class="opt-title">アンチ・クラウディングアルゴリズム</span><span class="opt-sub">他購入者との数字被りを徹底回避し、<br>当せん時の単独当せん（配当最大化）を<br>追及する最高位コード。</span></span><span class="price plus">＋10,000円</span></label>
+                        </div>
+
                     </section>
                 </main>
 
@@ -432,14 +446,10 @@
                             <div class="tax">税込</div>
                         </div>
 
-                        <div class="checkarea">
-                            <label class="checkline"><input id="c1" type="checkbox"> <span>予想受取は提供前日15時まで</span></label>
-                            <label class="checkline"><input id="c2" type="checkbox"> <span>完了後の自動停止に同意する</span></label>
-                            <label class="checkline"><input id="c3" type="checkbox"> <span>この仕様でAI構築を申請する</span></label>
-                        </div>
+                        <!-- Random message box moved outside -->
 
                         <!-- Change this button to go to screen 3 -->
-                        <button class="cta" id="btn-confirm" disabled onclick="goToResult()">このスペックで確定する</button>
+                        <button class="cta" id="btn-confirm" disabled onclick="goToRegistration()">このスペックで確定する</button>
                         <div class="note">
                             ※確定後、証明書画像を発行できます。<br>
                             ※予想は将来の当せんを保証するものではありません。
@@ -450,12 +460,32 @@
         </div>
 
 
-        <!-- ==================== SCREEN 3: RESULT AND SAVE IMAGE ==================== -->
+        <!-- ==================== SCREEN 3: REGISTRATION ==================== -->
         <div id="screen-3" class="screen">
+            <div style="max-width: 500px; margin: 0 auto; text-align: center;">
+                <h2>ユーザー登録</h2>
+                <p style="color:var(--text-muted); margin-bottom: 30px; line-height: 1.8;">
+                    予想受取には<br>
+                    会員番号とメールアドレスが必要です。<br><br>
+                    下記のご登録をお願いします。
+                </p>
+                <div style="text-align: left; margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">会員番号 <span style="color:#ff4444">*</span></label>
+                    <input type="text" id="member-id" placeholder="例: 123456" style="width: 100%; padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: #fff; font-size: 16px; box-sizing: border-box;" required>
+                </div>
+                <div style="text-align: left; margin-bottom: 30px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">メールアドレス <span style="color:#ff4444">*</span></label>
+                    <input type="email" id="email" placeholder="例: sample@example.com" style="width: 100%; padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: #fff; font-size: 16px; box-sizing: border-box;" required>
+                </div>
+                <button class="cta" onclick="submitRegistration()">登録して証明書を発行する</button>
+            </div>
+        </div>
+
+        <!-- ==================== SCREEN 4: RESULT AND SAVE IMAGE ==================== -->
+        <div id="screen-4" class="screen">
             <div id="result-card">
-                <div class="result-header">
-                    <h2>CERTIFICATE</h2>
-                    <p>自作AI構築 最終確定スペック</p>
+                <div class="result-header" style="text-align: center; border-bottom: none; padding-bottom: 10px;">
+                    <img src="./カスタムAI選択後TOP.png" alt="カスタムAI選択後TOP" style="width: 100%; height: auto; display: block;">
                 </div>
                 <div class="result-body">
                     <div class="result-item">
@@ -485,12 +515,14 @@
                 </div>
             </div>
             
-            <div class="text-center">
-                <button class="save-btn" onclick="saveAsImage()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    画像を保存する
-                </button>
-                <div class="note" style="margin-top: 15px;">※保存した画像はAI構築の控えとしてご利用いただけます。</div>
+            <div style="margin-top: 40px; text-align: left; line-height: 1.8; background: var(--panel); padding: 24px; border-radius: 8px; border: 1px solid var(--line);">
+                <h3 style="color: var(--accent); font-size: 16px; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 15px; font-weight: bold; letter-spacing: 0.1em;">■ 今後の流れについて</h3>
+                <p style="font-size: 13px; margin-bottom: 15px; color: #fff;">
+                    ただいまより、ご指定いただいたベースモデル、パラメータ、および各種トッピングプロトコルの組み込み作業へと入らせていただきます。
+                </p>
+                <p style="font-size: 13px; margin-bottom: 0; color: #fff;">
+                    AIの組み上げおよび実践配備が完了いたしましたら、開発部より折り返し【AI構築完了のご連絡】を個別に送信させていただきます。
+                </p>
             </div>
         </div>
 
@@ -498,6 +530,11 @@
 
     <div class="footer">
         LOTTO TOKYO / PROJECT BUILDER PROTOCOL
+    </div>
+
+    <!-- Random message box (Fixed Overlay) -->
+    <div id="random-msg-box" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 440px; z-index: 1000; font-size: 11px; text-align: center; color: var(--accent); border: 1px solid var(--accent); padding: 12px; border-radius: 6px; background: rgba(10, 15, 25, 0.95); backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0,0,0,0.8); animation: blink 2s infinite;">
+        <!-- Text will be inserted here -->
     </div>
 </div>
 
@@ -521,8 +558,7 @@
         sLines: document.getElementById('s-lines'),
         sOpt: document.getElementById('s-opt'),
         total: document.getElementById('total'),
-        btnConfirm: document.getElementById('btn-confirm'),
-        checks: [document.getElementById('c1'), document.getElementById('c2'), document.getElementById('c3')]
+        btnConfirm: document.getElementById('btn-confirm')
     };
 
     // SCREEN 1: Select Theme (Tap Image)
@@ -559,10 +595,75 @@
         state.total = total;
         els.total.innerText = '￥' + total.toLocaleString();
 
-        const allChecked = els.checks.every(chk => chk.checked);
         const allRadiosSelected = baseEl && targetEl && runsEl && linesEl;
-        
-        els.btnConfirm.disabled = !(allChecked && allRadiosSelected);
+        els.btnConfirm.disabled = !allRadiosSelected;
+
+        const msgBox = document.getElementById('random-msg-box');
+        if (state.opts.length > 0 && msgBox.style.display === 'none') {
+            const msgs = [
+                // R級 (Normal: ~60%)
+                { text: "【解析完了】優れたバランスの組み合わせです", prob: 6, tier: "R" },
+                { text: "【システム解析】当せん率と回収率の黄金比を保った構成です", prob: 6, tier: "R" },
+                { text: "【最適化完了】無駄のない美しいアルゴリズムが形成されました", prob: 6, tier: "R" },
+                { text: "【安定志向】リスクを徹底排除した堅実かつ強力な布陣です", prob: 6, tier: "R" },
+                { text: "【データ検証】過去のシミュレーションで高い実績を残した構成です", prob: 6, tier: "R" },
+                { text: "【カスタマイズ完了】あなたの直感がシステムに完璧に反映されました", prob: 6, tier: "R" },
+                { text: "【解析完了】長期的な目線で高いパフォーマンスが期待できます", prob: 6, tier: "R" },
+                { text: "【解析完了】堅実さと爆発力を兼ね備えたハイブリッド設定です", prob: 6, tier: "R" },
+                { text: "【チューニング完了】隙のない完璧なロジックが組み上がりました", prob: 6, tier: "R" },
+                { text: "【システム通知】現在最もトレンドに乗っている構成の一つです", prob: 6, tier: "R" },
+                
+                // SR級 (Rare: 25%)
+                { text: "【推奨設定】AI開発チームが理想とする完成度の高いカスタムです", prob: 5, tier: "SR" },
+                { text: "【特化型】一点突破に長けた非常にアグレッシブな組み合わせです", prob: 5, tier: "SR" },
+                { text: "【シナジー効果】ベースAIとパラメータの相性が98%を超過しました", prob: 5, tier: "SR" },
+                { text: "【完全同期】ベースAIの潜在能力を120%引き出す理想的な設定です", prob: 5, tier: "SR" },
+                { text: "【限界突破】AIのリミッターを解除する非常に攻撃的な設定です", prob: 5, tier: "SR" },
+                
+                // SSR級 (Super Rare: 14%)
+                { text: "【SSR確定級】奇跡的な相性！まさに最強のカスタム構成です！", prob: 3.5, tier: "SSR" },
+                { text: "【激熱】近日のトレンドと完全に合致する一撃必殺構成です！", prob: 3.5, tier: "SSR" },
+                { text: "【極秘】一般には非公開とされるプレミアムな組み合わせが完成しました", prob: 3.5, tier: "SSR" },
+                { text: "【最高評価】AI自身が「完璧」と評価した至高のカスタムです", prob: 3.5, tier: "SSR" },
+                
+                // UR級 (Ultra Rare: 1%)
+                { text: "【SYSTEM ERROR!?】想定上限を突破！天文学的確率の『神』構成です", prob: 1, tier: "UR" }
+            ];
+            
+            const rand = Math.random() * 100;
+            let sum = 0;
+            for (let m of msgs) {
+                sum += m.prob;
+                if (rand <= sum) {
+                    msgBox.innerText = m.text;
+                    if (m.tier === "UR") {
+                        msgBox.style.color = '#ff4444';
+                        msgBox.style.borderColor = '#ff4444';
+                        msgBox.style.background = 'rgba(30, 5, 5, 0.95)';
+                        msgBox.style.textShadow = '0 0 5px rgba(255, 68, 68, 0.5)';
+                    } else if (m.tier === "SSR") {
+                        msgBox.style.color = 'var(--gold)';
+                        msgBox.style.borderColor = 'var(--gold)';
+                        msgBox.style.background = 'rgba(25, 20, 5, 0.95)';
+                        msgBox.style.textShadow = '0 0 5px rgba(230,200,131, 0.5)';
+                    } else if (m.tier === "SR") {
+                        msgBox.style.color = 'var(--accent2)';
+                        msgBox.style.borderColor = 'var(--accent2)';
+                        msgBox.style.background = 'rgba(5, 25, 10, 0.95)';
+                        msgBox.style.textShadow = 'none';
+                    } else {
+                        msgBox.style.color = 'var(--accent)';
+                        msgBox.style.borderColor = 'var(--accent)';
+                        msgBox.style.background = 'rgba(5, 15, 30, 0.95)';
+                        msgBox.style.textShadow = 'none';
+                    }
+                    break;
+                }
+            }
+            msgBox.style.display = 'block';
+        } else if (state.opts.length === 0) {
+            msgBox.style.display = 'none';
+        }
     }
 
     // ラジオボタン選択時：状態を更新し、次のセクションへスライド
@@ -602,8 +703,42 @@
         input.addEventListener('change', updateFormState);
     });
 
-    // SCREEN 3: Transition and Setup
-    function goToResult() {
+    // SCREEN 3: Registration Transition
+    function goToRegistration() {
+        document.getElementById('screen-2').classList.remove('active');
+        document.getElementById('screen-3').classList.add('active');
+        document.getElementById('random-msg-box').style.display = 'none';
+        window.scrollTo(0, 0);
+    }
+
+    // Process Registration and go to Result (SCREEN 4)
+    function submitRegistration() {
+        const memberId = document.getElementById('member-id').value.trim();
+        const email = document.getElementById('email').value.trim();
+        
+        if(!memberId || !email) {
+            alert("会員番号とメールアドレスを入力してください。");
+            return;
+        }
+
+        // Save data to localStorage (for admin page)
+        const record = {
+            date: new Date().toLocaleString(),
+            memberId: memberId,
+            email: email,
+            base: state.base,
+            target: state.target,
+            runs: state.runs,
+            lines: state.lines,
+            opts: state.opts,
+            total: state.total
+        };
+        
+        let records = JSON.parse(localStorage.getItem('ai_registrations') || '[]');
+        records.push(record);
+        localStorage.setItem('ai_registrations', JSON.stringify(records));
+
+        // Prepare Result Screen
         document.getElementById('r-base').innerText = state.base || '-';
         document.getElementById('r-target').innerText = state.target || '-';
         document.getElementById('r-runs').innerText = state.runs || '-';
@@ -611,27 +746,12 @@
         document.getElementById('r-opt').innerText = state.opts.length > 0 ? state.opts.join(', ') : 'なし';
         document.getElementById('r-total').innerText = '￥' + state.total.toLocaleString();
 
-        document.getElementById('screen-2').classList.remove('active');
-        document.getElementById('screen-3').classList.add('active');
+        document.getElementById('screen-3').classList.remove('active');
+        document.getElementById('screen-4').classList.add('active');
         window.scrollTo(0, 0);
     }
 
-    // IMAGE SAVING
-    function saveAsImage() {
-        const captureArea = document.getElementById('result-card');
-        
-        html2canvas(captureArea, {
-            backgroundColor: '#05070a',
-            scale: 2,
-            useCORS: true
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'AI_BUILDER_RESULT.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        });
-    }
-
 </script>
+
 </body>
 </html>

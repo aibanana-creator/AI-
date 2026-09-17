@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI BUILDER - 管理ダッシュボード</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --surface: #0a0f16;
+            --primary: #7ebaf5;
+            --text: #e0e6ed;
+            --border: rgba(126, 186, 245, 0.2);
+        }
+        
+        body {
+            font-family: 'Noto Serif JP', serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 98%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            font-weight: 900;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-family: 'Noto Serif JP', serif;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .btn-danger {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        th {
+            background: rgba(126, 186, 245, 0.1);
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: rgba(255,255,255,0.5);
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        .badge {
+            background: rgba(126, 186, 245, 0.2);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>AI BUILDER - 登録データ管理</h1>
+    
+    <div class="controls">
+        <button onclick="loadData()">データを更新</button>
+        <button class="btn-danger" onclick="clearData()">全データを消去</button>
+    </div>
+
+    <div id="table-container">
+        <!-- Table will be rendered here -->
+    </div>
+</div>
+
+<script>
+    function loadData() {
+        const records = JSON.parse(localStorage.getItem('ai_registrations') || '[]');
+        const container = document.getElementById('table-container');
+
+        if (records.length === 0) {
+            container.innerHTML = '<div class="empty-state">現在、登録されているデータはありません。</div>';
+            return;
+        }
+
+        let html = `
+            <table>
+                <thead>
+                    <tr>
+                        <th style="white-space: nowrap;">日時</th>
+                        <th style="white-space: nowrap;">会員番号</th>
+                        <th style="white-space: nowrap; min-width: 250px;">メールアドレス</th>
+                        <th style="white-space: nowrap;">ベースAI</th>
+                        <th style="white-space: nowrap;">ターゲット</th>
+                        <th style="white-space: nowrap;">稼働</th>
+                        <th style="white-space: nowrap;">口数</th>
+                        <th>オプション</th>
+                        <th style="white-space: nowrap;">合計金額</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        // Reverse to show newest first
+        records.reverse().forEach(r => {
+            const opts = r.opts && r.opts.length > 0 ? r.opts.join(', ') : 'なし';
+            html += `
+                <tr>
+                    <td style="font-size: 13px; color: #fff; white-space: nowrap;">${r.date}</td>
+                    <td style="font-weight: bold; color: #fff; white-space: nowrap;">${r.memberId}</td>
+                    <td style="white-space: nowrap; color: #fff;">${r.email}</td>
+                    <td style="white-space: nowrap;"><span class="badge">${r.base || '未選択'}</span></td>
+                    <td style="white-space: nowrap; color: #fff;">${r.target || '未選択'}</td>
+                    <td style="font-size: 13px; white-space: nowrap; color: #fff;">${r.runs || '-'}</td>
+                    <td style="font-size: 13px; white-space: nowrap; color: #fff;">${r.lines || '-'}</td>
+                    <td style="font-size: 13px; color: #fff;">${opts}</td>
+                    <td style="font-weight: bold; color: #ffb86c; white-space: nowrap;">￥${(r.total || 0).toLocaleString()}</td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+
+    function clearData() {
+        if (confirm("本当に全ての登録データを削除しますか？\\nこの操作は取り消せません。")) {
+            localStorage.removeItem('ai_registrations');
+            loadData();
+        }
+    }
+
+    // Load data on start
+    loadData();
+</script>
+
+</body>
+</html>
