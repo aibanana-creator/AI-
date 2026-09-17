@@ -330,7 +330,7 @@
                         <div class="stephead">
                             <div class="stepno">STEP 02</div>
                             <div>
-                                <h2>ターゲットくじ種の決定（専門領域）</h2>
+                                <h2>ターゲットくじ種の決定<br>（専門領域）</h2>
                                 <p style="color:var(--text-muted); font-size:12px; margin-top:5px;">※特化させたいくじ種を1つ選択してください。</p>
                             </div>
                         </div>
@@ -347,7 +347,7 @@
                         <div class="stephead">
                             <div class="stepno">STEP 03</div>
                             <div>
-                                <h2>稼働エネルギー（予想出力回数＝AIの寿命）</h2>
+                                <h2>稼働エネルギー<br>（予想出力回数＝AIの寿命）</h2>
                                 <p style="color:var(--text-muted); font-size:12px; margin-top:5px;">※都市サーバーの占有期間・データ校正回数を設定します。</p>
                             </div>
                         </div>
@@ -363,7 +363,7 @@
                         <div class="stephead">
                             <div class="stepno">STEP 04</div>
                             <div>
-                                <h2>提供口数の拡張（並行演算パラメータ）</h2>
+                                <h2>提供口数の拡張<br>（並行演算パラメータ）</h2>
                                 <p style="color:var(--text-muted); font-size:12px; margin-top:5px;">※1回あたりの予想買い目数を設定します。（標準は5口）</p>
                             </div>
                         </div>
@@ -388,9 +388,10 @@
                         </div>
                         
                         <div class="tier" style="margin: 20px 0 10px 0; font-size: 14px; padding: 10px 15px; border-left: 3px solid var(--accent);">
-                            <span>① 基本解析プロトコル（スタイル調整）</span>
+                            <span>① 基本解析プロトコル<br>（スタイル調整）</span>
                         </div>
                         <div class="options">
+                            <label class="option"><input type="checkbox" name="opt" value="オプションなし" data-price="0"><span><span class="opt-title">【標準】<br>オプションなし</span><span class="opt-sub">ベースモデルの基本性能をそのまま活かします。<br>追加のスタイル調整は行いません。</span></span><span class="price">＋0円</span></label>
                             <label class="option"><input type="checkbox" name="opt" value="ノーマル・チューン" data-price="2000"><span><span class="opt-title">【バランス型】<br>ノーマル・チューン</span><span class="opt-sub">基本ロジックをそのまま活かし、<br>偏りのない安定した買い目を展開する標準仕様。</span></span><span class="price plus">＋2,000円</span></label>
                             <label class="option"><input type="checkbox" name="opt" value="HOT追従＆ノイズ除去" data-price="3500"><span><span class="opt-title">【安定志向】<br>HOT追従＆ノイズ除去プロトコル</span><span class="opt-sub">直近の出現傾向が高い勢いのある数字を捉えつつ、<br>無駄なノイズをカットする安定重視コード。</span></span><span class="price plus">＋3,500円</span></label>
                             <label class="option"><input type="checkbox" name="opt" value="COLD逆張り" data-price="7000"><span><span class="opt-title">【一撃特化】<br>COLD逆張り＆ジャックポット・ダイブ</span><span class="opt-sub">長期未出現の数字をあえて組み込み、<br>跳ね返りの一撃・高額配当を力ずくで<br>狙いに行く超攻撃型コード。</span></span><span class="price plus">＋7,000円</span></label>
@@ -599,7 +600,7 @@
         els.btnConfirm.disabled = !allRadiosSelected;
 
         const msgBox = document.getElementById('random-msg-box');
-        if (state.opts.length > 0 && msgBox.style.display === 'none') {
+        if (state.opts.length > 0) {
             const msgs = [
                 // UR級 (Gold) - 5% total
                 { tier: "UR", text: "ふむ、堅実でスキのない構成ですね。<br>実戦で安定したパフォーマンスを発揮してくれそうです！", prob: 5/6 },
@@ -674,22 +675,43 @@
                 }
             };
 
+            let paidOptsCount = state.opts.filter(opt => opt !== "オプションなし").length;
+            
+            let weights = { UR: 0, SSSR: 0, SSR: 0, SR: 0, R: 0 };
             if (state.base === 'ASURA — アシュラ') {
-                const urMsgs = msgs.filter(m => m.tier === "UR");
-                const urMsg = urMsgs[Math.floor(Math.random() * urMsgs.length)];
-                styleMessage(urMsg, msgBox);
+                weights = { UR: 100, SSSR: 0, SSR: 0, SR: 0, R: 0 };
+            } else if (paidOptsCount === 0) {
+                // No paid options -> Max is SR (Mostly R)
+                weights = { UR: 0, SSSR: 0, SSR: 0, SR: 30, R: 70 };
+            } else if (paidOptsCount === 1) {
+                // 1 paid option -> Grade UP (Mix of SR, SSR, some SSSR)
+                weights = { UR: 2, SSSR: 18, SSR: 40, SR: 30, R: 10 };
             } else {
-                const rand = Math.random() * 100;
-                let sum = 0;
-                for (let m of msgs) {
-                    sum += m.prob;
-                    if (rand <= sum) {
-                        styleMessage(m, msgBox);
-                        break;
-                    }
+                // 2+ paid options -> More Grade UP
+                weights = { UR: 15, SSSR: 25, SSR: 35, SR: 20, R: 5 };
+            }
+
+            const rand = Math.random() * 100;
+            let sum = 0;
+            let selectedTier = "R";
+            for (const [tier, weight] of Object.entries(weights)) {
+                sum += weight;
+                if (rand <= sum) {
+                    selectedTier = tier;
+                    break;
                 }
             }
+
+            const tierMsgs = msgs.filter(m => m.tier === selectedTier);
+            const selectedMsg = tierMsgs[Math.floor(Math.random() * tierMsgs.length)];
+            styleMessage(selectedMsg, msgBox);
             msgBox.style.display = 'block';
+            
+            // アニメーションをリセットして再発火させる
+            msgBox.style.animation = 'none';
+            msgBox.offsetHeight; // リフロー強制
+            msgBox.style.animation = 'blink 6s ease-in-out infinite';
+            
         } else if (state.opts.length === 0) {
             msgBox.style.display = 'none';
         }
@@ -767,6 +789,9 @@
         records.push(record);
         localStorage.setItem('ai_registrations', JSON.stringify(records));
 
+        // Save specific record for this user to lock the page
+        localStorage.setItem('my_ai_record', JSON.stringify(record));
+
         // Prepare Result Screen
         document.getElementById('r-base').innerText = state.base || '-';
         document.getElementById('r-target').innerText = state.target || '-';
@@ -779,6 +804,28 @@
         document.getElementById('screen-4').classList.add('active');
         window.scrollTo(0, 0);
     }
+
+    // Check if user has already registered when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedRecordStr = localStorage.getItem('my_ai_record');
+        if (savedRecordStr) {
+            const savedRecord = JSON.parse(savedRecordStr);
+            
+            // Hide all other screens
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            
+            // Populate Result Screen
+            document.getElementById('r-base').innerText = savedRecord.base || '-';
+            document.getElementById('r-target').innerText = savedRecord.target || '-';
+            document.getElementById('r-runs').innerText = savedRecord.runs || '-';
+            document.getElementById('r-lines').innerText = savedRecord.lines || '-';
+            document.getElementById('r-opt').innerText = savedRecord.opts && savedRecord.opts.length > 0 ? savedRecord.opts.join(', ') : 'なし';
+            document.getElementById('r-total').innerText = '￥' + (savedRecord.total || 0).toLocaleString();
+            
+            // Show Result Screen
+            document.getElementById('screen-4').classList.add('active');
+        }
+    });
 
 </script>
 
